@@ -7,3 +7,4 @@ export 'screens/post_details.dart';
 export 'screens/new_post.dart';
 export 'dart:async';
 export 'dart:math';
+import 'size_blocks.dart';

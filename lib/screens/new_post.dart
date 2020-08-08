@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as Path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:WasteAGram/size_blocks.dart';
 
 class NewPost extends StatefulWidget {
   static const routName = 'NewPost';
@@ -57,19 +58,27 @@ class _NewPostState extends State<NewPost> {
   }
 
   Widget _input() {
-    return TextFormField(
-      decoration: InputDecoration(labelText: 'Amount'),
-      keyboardType: TextInputType.number,
-      validator: (String value) {
-        if (value.isEmpty) {
-          return 'Please enter an amount';
-        }
-        return null;
-      },
-      onSaved: (String value) {
-        amount = int.parse(value);
-        setState(() {});
-      },
+    return Container(
+      margin: EdgeInsets.only(
+        top: SizeConfig.blockSizeHorizontal * 5)
+        ,
+      child: TextFormField(
+        decoration: InputDecoration(
+          labelText: 'Amount of Waste',
+          border: OutlineInputBorder(),
+          ),
+        keyboardType: TextInputType.number,
+        validator: (String value) {
+          if (value.isEmpty) {
+            return 'Please enter an amount';
+          }
+          return null;
+        },
+        onSaved: (String value) {
+          amount = int.parse(value);
+          setState(() {});
+        },
+      ),
     );
   }
 
@@ -96,38 +105,41 @@ class _NewPostState extends State<NewPost> {
       return Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: _appBar(),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              _picture(),
-              //SizedBox(height: 50),
-              Form(
-                key: _formKey,
-                child: _input(),
-              ),
-              Spacer(),
-              // SizedBox(
-              //   height: 100,
-              // ),
-              Container(
-                width: double.infinity,
-                height: 180,
-                child: RaisedButton(
-                    child: Icon(
-                      Icons.cloud_upload,
-                      size: 140,
-                    ),
-                    onPressed: () {
-                      if (!_formKey.currentState.validate()) {
-                        return;
-                      } else {
-                        _formKey.currentState.save();
-                        _uploadToCloud();
-                        Navigator.pop(context);
-                      }
-                    }),
-              )
-            ],
+          body: Container(
+            padding: EdgeInsets.all(SizeConfig.blockSizeHorizontal * 5),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _picture(),
+                //SizedBox(height: 50),
+                Form(
+                  key: _formKey,
+                  child: _input(),
+                ),
+                Spacer(),
+                // SizedBox(
+                //   height: 100,
+                // ),
+                Container(
+                  width: double.infinity,
+                  height: 180,
+                  child: RaisedButton(
+                      child: Icon(
+                        Icons.cloud_upload,
+                        size: 140,
+                      ),
+                      onPressed: () {
+                        if (!_formKey.currentState.validate()) {
+                          return;
+                        } else {
+                          _formKey.currentState.save();
+                          _uploadToCloud();
+                          Navigator.pop(context);
+                        }
+                      }),
+                )
+              ],
+            ),
           ));
     }
   }
