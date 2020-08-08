@@ -3,8 +3,8 @@ import '../wasteagram.dart';
 class WasteagramPost {
   String url;
   int amount;
-  int latitude;
-  int longitude;
+  double latitude;
+  double longitude;
   DateTime date;
 
   WasteagramPost(
