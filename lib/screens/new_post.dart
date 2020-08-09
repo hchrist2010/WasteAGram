@@ -14,6 +14,7 @@ import 'package:WasteAGram/size_blocks.dart';
 
 class NewPost extends StatefulWidget {
   static const routName = 'NewPost';
+  
   @override
   _NewPostState createState() => _NewPostState();
 }
@@ -59,14 +60,12 @@ class _NewPostState extends State<NewPost> {
 
   Widget _input() {
     return Container(
-      margin: EdgeInsets.only(
-        top: SizeConfig.blockSizeHorizontal * 5)
-        ,
+      margin: EdgeInsets.only(top: SizeConfig.blockSizeHorizontal * 5),
       child: TextFormField(
         decoration: InputDecoration(
           labelText: 'Amount of Waste',
           border: OutlineInputBorder(),
-          ),
+        ),
         keyboardType: TextInputType.number,
         validator: (String value) {
           if (value.isEmpty) {
@@ -91,6 +90,10 @@ class _NewPostState extends State<NewPost> {
       'longitude': longitude,
       'date': date.toString(),
     });
+    await databaseReference
+        .collection('totalAmount')
+        .document('totalAmount')
+        .updateData({'totalAmount': totalAmount});
   }
 
   @override
@@ -99,8 +102,8 @@ class _NewPostState extends State<NewPost> {
       if (image == null) {
         initPage();
       }
-      return Scaffold(appBar: _appBar(), body: CircularProgressIndicator());
-      CircularProgressIndicator();
+      return Scaffold(
+          appBar: _appBar(), body: Center(child: CircularProgressIndicator()));
     } else {
       return Scaffold(
           resizeToAvoidBottomInset: false,
@@ -135,6 +138,9 @@ class _NewPostState extends State<NewPost> {
                           _formKey.currentState.save();
                           _uploadToCloud();
                           Navigator.pop(context);
+                          setState(() {
+                            totalAmount += amount;
+                          });
                         }
                       }),
                 )

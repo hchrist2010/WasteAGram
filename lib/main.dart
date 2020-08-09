@@ -1,11 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'wasteagram.dart';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 
 final String title = 'WasteAGram';
+int totalAmount = 0;
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.dumpErrorToConsole(details);
@@ -27,7 +26,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
+  @override
   void initState() {
     super.initState();
   }
@@ -39,6 +38,8 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData.dark(),
       routes: MyApp.routes,
 //      home: MyHomePage(),
+//      home: fakeHomePage(),
     );
   }
 }
+

@@ -12,10 +12,26 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+class GetTotalAmount {
+  getAmount() {
+    return Firestore.instance.collection('totalAmount').getDocuments();
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
-  int amount = 0;
-  void setAmount(temp) {
-    amount += temp;
+  var amount;
+  @override
+  initState() {
+    super.initState();
+    initTotalAmount();
+  }
+
+  void initTotalAmount() async {
+    await GetTotalAmount().getAmount().then((QuerySnapshot docs) {
+      if (docs.documents.isNotEmpty) {
+        amount = docs.documents[0].data;
+      }
+    });
   }
 
   File image;
@@ -45,35 +61,38 @@ class _MyHomePageState extends State<MyHomePage> {
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return ListView.builder(
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (context, index) {
-                    var post = snapshot.data.documents[index];
-                    setAmount(post['amount']);
-                    return ListTile(
-                      leading: Text(
-                          DateFormat.yMMMMEEEEd()
-                              .format(DateTime.parse(post['date'])),
-                          style: TextStyle(
-                              fontSize: SizeConfig.blockSizeHorizontal * 5)),
-                      trailing: Text(post['amount'].toString(),
-                          style: TextStyle(
-                              fontSize: SizeConfig.blockSizeHorizontal * 5)),
-                      onTap: () {
-                        Navigator.of(context).pushNamed(PostDetails.routName,
-                            arguments: WasteagramPost(
-                              url: post['url'],
-                              amount: post['amount'],
-                              latitude: post['latitude'],
-                              longitude: post['longitude'],
-                              date: DateTime.parse(post['date']),
-                            ));
-                      },
-                    );
-                  });
-            } else {
-              return Container(child: CircularProgressIndicator());
-            }
+              if (snapshot.data.documents.length > 1) {
+                return ListView.builder(
+                    itemCount: snapshot.data.documents.length - 1,
+                    itemBuilder: (context, index) {
+                      var post = snapshot.data.documents[index];
+                      return ListTile(
+                        leading: Text(
+                            DateFormat.yMMMMEEEEd()
+                                .format(DateTime.parse(post['date'])),
+                            style: TextStyle(
+                                fontSize: SizeConfig.blockSizeHorizontal * 5)),
+                        trailing: Text(post['amount'].toString(),
+                            style: TextStyle(
+                                fontSize: SizeConfig.blockSizeHorizontal * 5)),
+                        onTap: () {
+                          Navigator.of(context).pushNamed(PostDetails.routName,
+                              arguments: WasteagramPost(
+                                url: post['url'],
+                                amount: post['amount'],
+                                latitude: post['latitude'],
+                                longitude: post['longitude'],
+                                date: DateTime.parse(post['date']),
+                              ));
+                        },
+                      );
+                    });
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            }else {
+                return Center(child: CircularProgressIndicator());
+              }
           }),
     );
   }
@@ -81,14 +100,18 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${title} - ${amount}'),
-        centerTitle: true,
-      ),
-      body: _StreamBuilder(),
-      floatingActionButton: _add_new(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
+    if (amount != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('${title} - ${amount['totalAmount'].toString()}'),
+          centerTitle: true,
+        ),
+        body: _StreamBuilder(),
+        floatingActionButton: _add_new(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      );
+    } else {
+      return Scaffold(body: CircularProgressIndicator());
+    }
   }
 }
