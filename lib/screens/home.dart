@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../wasteagram.dart';
 import 'package:intl/intl.dart';
@@ -12,26 +11,10 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class GetTotalAmount {
-  getAmount() {
-    return Firestore.instance.collection('totalAmount').getDocuments();
-  }
-}
-
 class _MyHomePageState extends State<MyHomePage> {
-  var amount;
   @override
   initState() {
     super.initState();
-    initTotalAmount();
-  }
-
-  void initTotalAmount() async {
-    await GetTotalAmount().getAmount().then((QuerySnapshot docs) {
-      if (docs.documents.isNotEmpty) {
-        amount = docs.documents[0].data;
-      }
-    });
   }
 
   File image;
@@ -51,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _StreamBuilder() {
+  Widget _stream_builder() {
     return Container(
       padding: EdgeInsets.all(SizeConfig.blockSizeHorizontal * 5),
       child: StreamBuilder(
@@ -88,11 +71,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     });
               } else {
-                return Center(child: CircularProgressIndicator());
+                return Loading(text: 'No Posts Currently');
               }
-            }else {
-                return Center(child: CircularProgressIndicator());
-              }
+            } else {
+              return Loading(text: 'Loading...');
+            }
           }),
     );
   }
@@ -100,18 +83,53 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    if (amount != null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('${title} - ${amount['totalAmount'].toString()}'),
-          centerTitle: true,
-        ),
-        body: _StreamBuilder(),
-        floatingActionButton: _add_new(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      );
-    } else {
-      return Scaffold(body: CircularProgressIndicator());
-    }
+    // if (amountGlobal != null) {
+    return Scaffold(
+      appBar: customAppBar(),
+      body: _stream_builder(),
+      floatingActionButton: _add_new(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
   }
+}
+
+class Loading extends StatelessWidget {
+  Loading({
+    Key key, this.text
+  }) : super(key: key);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: Center(
+            child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(text,
+        style: TextStyle(
+          fontSize: SizeConfig.blockSizeHorizontal * 5
+        )),
+        SizedBox(
+          height: SizeConfig.blockSizeVertical * 3
+        ),
+        CircularProgressIndicator(),
+      ],
+    )));
+  }
+}
+
+Widget customAppBar() {
+  return AppBar(
+    title: StreamBuilder(
+        stream: Firestore.instance.collection('totalAmount').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return Text('Loading...');
+          int totalAmount = snapshot.data.documents[0]['totalAmount'];
+          totalAmountGlobal = totalAmount.toInt();
+          return Text('WasteAGram - ${totalAmount.toString()}');
+        }),
+    centerTitle: true,
+  );
 }

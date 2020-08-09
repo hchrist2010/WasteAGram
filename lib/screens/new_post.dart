@@ -1,20 +1,16 @@
-import 'package:intl/intl.dart';
-import '../models/post.dart';
 import '../wasteagram.dart';
-import 'package:intl/intl.dart';
 import '../main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import 'package:path/path.dart' as Path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:WasteAGram/size_blocks.dart';
 
 class NewPost extends StatefulWidget {
   static const routName = 'NewPost';
-  
+
   @override
   _NewPostState createState() => _NewPostState();
 }
@@ -90,10 +86,11 @@ class _NewPostState extends State<NewPost> {
       'longitude': longitude,
       'date': date.toString(),
     });
+    totalAmountGlobal += amount;
     await databaseReference
         .collection('totalAmount')
         .document('totalAmount')
-        .updateData({'totalAmount': totalAmount});
+        .updateData({'totalAmount': totalAmountGlobal});
   }
 
   @override
@@ -114,15 +111,11 @@ class _NewPostState extends State<NewPost> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 _picture(),
-                //SizedBox(height: 50),
                 Form(
                   key: _formKey,
                   child: _input(),
                 ),
                 Spacer(),
-                // SizedBox(
-                //   height: 100,
-                // ),
                 Container(
                   width: double.infinity,
                   height: 180,
@@ -139,7 +132,7 @@ class _NewPostState extends State<NewPost> {
                           _uploadToCloud();
                           Navigator.pop(context);
                           setState(() {
-                            totalAmount += amount;
+                            //totalAmount += amount;
                           });
                         }
                       }),
